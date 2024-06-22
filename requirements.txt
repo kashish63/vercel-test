@@ -1,5 +1,5 @@
-flask 
-selenium
-ChromeDriverManager
-webdriver_manager
-xvfbwrapper
+flask==3.0.3 
+selenium==4.21.0
+ChromeDriverManager==0.0.1
+webdriver_manager==4.0.1
+xvfbwrapper==0.2.9
