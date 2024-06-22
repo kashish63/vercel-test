@@ -1,0 +1,6 @@
+flask 
+selenium
+ChromeDriverManager
+webdriver_manager
+xvfbwrapper
+fcntl

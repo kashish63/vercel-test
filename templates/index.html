@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Flask App</title>
+</head>
+<body>
+    <h1>Welcome to My Flask App!</h1>
+    <p>This is the index page.</p>
+    
+    <!-- Input boxes -->
+    <form id="inputForm">
+        <label for="input1">Input 1:</label>
+        <input type="text" id="input1" name="input1"><br><br>
+        
+        <label for="input2">Input 2:</label>
+        <input type="text" id="input2" name="input2"><br><br>
+        
+        <button type="button" id="sendButton">Send</button>
+    </form>
+
+    <!-- Script to handle button click and redirect -->
+    <script>
+        document.getElementById("sendButton").addEventListener("click", function() {
+            var input1Value = document.getElementById("input1").value;
+            var input2Value = document.getElementById("input2").value;
+
+            // Send data to Flask server via AJAX
+            fetch('/save_data', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({input1: input1Value, input2: input2Value})
+            }).then(response => response.json())
+            .then(data => {
+                if (data.redirect_url) {
+                    window.location.href = data.redirect_url;  // Perform the redirect
+                }
+            })
+            .catch(error => console.error('Error:', error));
+        });
+    </script>
+</body>
+</html>
