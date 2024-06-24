@@ -27,9 +27,13 @@ def bot_setup():
     # options.add_argument("--remote-debugging-port=9222") 
 
     # service = Service(ChromeDriverManager().install())  
-    
-    chromedriver_autoinstaller.install()
-    driver = webdriver.Chrome(options=options) 
+    chrome_driver_path = chromedriver_autoinstaller.install()
+
+    # Initialize the Chrome driver with the service object
+    service = Service(chrome_driver_path)
+    driver = webdriver.Chrome(service=service, options=options)
+    # chromedriver_autoinstaller.install()
+    # driver = webdriver.Chrome(options=options) 
     driver.implicitly_wait(10)
     return driver
 
