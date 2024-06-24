@@ -4,3 +4,4 @@ ChromeDriverManager
 webdriver_manager
 xvfbwrapper
 fcntl
+gunicorn

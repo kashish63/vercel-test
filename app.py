@@ -8,19 +8,11 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from bs4 import BeautifulSoup
 import time
+import sendMail
 
 app = Flask(__name__)
 
-@app.route('/')
-def index():
-    return render_template('index.html')
-
-@app.route('/save_data', methods=['POST'])
-def save_data():
-    data = request.json
-    input1 = data['input1']
-    input2 = data['input2']
-    
+def bot_setup():
     options = Options()
     options.add_argument('--headless')
     # options.add_argument('--disable-gpu')
@@ -35,13 +27,15 @@ def save_data():
 
     service = Service(ChromeDriverManager().install())  
     driver = webdriver.Chrome(service=service, options=options) 
+    driver.implicitly_wait(10)
+    return driver
+
+def scrap_data(driver, url, input1, input2 ):
     try: 
         wait = WebDriverWait(driver, 10)
 
-        driver.get("https://6ecargo.goindigo.in/FrmAWBTracking.aspx")
-        
-
-        
+        driver.get(url)
+                
         code_input_field = wait.until(EC.presence_of_element_located((By.ID, 'txtPrefix')))
         print("line 44")
         tracking_input_field = wait.until(EC.presence_of_element_located((By.ID, 'TextBoxAWBno')))
@@ -51,7 +45,7 @@ def save_data():
         code_input_field.send_keys(input1)
         tracking_input_field.send_keys(input2)
         submit_button.click()
-        
+        data={}
         print("done")  # This will now print after actions are successful
         try: 
             # wait.until(EC.presence_of_element_located(By.ID, 'contentarea_tracking'))
@@ -66,7 +60,7 @@ def save_data():
                 tablehead = driver.find_elements(By.XPATH, "//*[@id='gvBkAcInfo']/tbody/tr[1]/th")
                 for i in range(0, len(tablehead)):
                     print(tablehead[i].text)
-                
+                    data[tablehead[i].text]=tablehead[i].text
 
                 row = soup.find_all("tr", {"class": "newstyle-tr"})
                 # col = soup.find_all("td", {"xpath":"//*[@id='gvBkAcInfo']/tbody/tr[2]/td"})
@@ -81,17 +75,41 @@ def save_data():
                     # data2 = driver.find_element(By.XPATH, f'//*[@id="cargotracker"]/div[2]/app-cargo-track-history/div/div/div[2]/div[2]/div/ul/li[{i}]/p[2]').text
 
                 #     print (data1," :", data2)
+                return data
             else:
                 print("No data for this number")
-        except TimeoutError as e: 
+                return {"massege": "No data for this number"}
+        except TimeoutError as e:
             driver.quit()
+            return {"Error":e} 
     except Exception as e:
         print(f"Exception occurred: {str(e)}")
         driver.quit()
-        return jsonify({'error': 'Failed to automate web form.', 'exception': str(e)})
+        return {{'error': 'Failed to automate web form.', 'exception': str(e)}} 
+
+
+@app.route('/')
+def index():
+    return render_template('index.html')
+
+
+@app.route('/save_data', methods=['POST'])
+def save_data():
+    data = request.json
+    input1 = data['input1']
+    input2 = data['input2']
+
+    url="https://6ecargo.goindigo.in/FrmAWBTracking.aspx"
+    driver = bot_setup()
+    data= scrap_data(driver, url, input1, input2)
+    try: 
+        sendMail.send_mail(data)
+    except Exception as e:
+        print("Error in sending mail ", e)
     current_url = driver.current_url
     driver.quit()
     print("Redirecting to Google.")
     return jsonify({'redirect_url': current_url })
 
-
+if __name__ == '__main__':
+    app.run(debug=True)
