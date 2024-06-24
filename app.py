@@ -9,6 +9,7 @@ from selenium.webdriver.support import expected_conditions as EC
 from bs4 import BeautifulSoup
 import time
 import sendMail
+import chromedriver_autoinstaller
 
 app = Flask(__name__)
 
@@ -25,8 +26,10 @@ def bot_setup():
     # options.add_argument("--disable-dev-shm-usage")  # Overcome limited resource problems
     # options.add_argument("--remote-debugging-port=9222") 
 
-    service = Service(ChromeDriverManager().install())  
-    driver = webdriver.Chrome(service=service, options=options) 
+    # service = Service(ChromeDriverManager().install())  
+    
+    chromedriver_autoinstaller.install()
+    driver = webdriver.Chrome(options=options) 
     driver.implicitly_wait(10)
     return driver
 

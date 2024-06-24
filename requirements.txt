@@ -1,10 +1,10 @@
 
 flask 
 selenium
-ChromeDriverManager
+# ChromeDriverManager
 webdriver_manager
 xvfbwrapper
 # fcntl
 gunicorn
-
+chromedriver-autoinstaller
 
