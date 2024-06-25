@@ -3,7 +3,7 @@ FROM debian:stable
 RUN apt-get update -y && apt-get install -y wget curl unzip libgconf-2-4
 ## For project usage: python3/python3-pip/chromium/xvfb
 RUN apt-get update -y && apt-get install -y xvfb python3 python3-pip
-RUN apt-get update && apt-get install -y libterm-readline-perl
+
 
 # RUN apt-get update -y && apt-get install --fix-missing && apt-get install -y python3 python3-pip
 
@@ -12,7 +12,8 @@ RUN curl -sS -o - https://dl-ssl.google.com/linux/linux_signing_key.pub | apt-ke
     apt-get -yqq update && \
     apt-get -yqq install google-chrome-stable && \
     rm -rf /var/lib/apt/lists/*
-
+    
+RUN apt-get update && apt-get install -y libterm-readline-perl
 RUN version=$(curl -s "https://googlechromelabs.github.io/chrome-for-testing/LATEST_RELEASE_STABLE")
 RUN echo "Installing ChromeDriver for version $version"
 RUN wget -N https://storage.googleapis.com/chrome-for-testing-public/125.0.6422.60/linux64/chromedriver-linux64.zip -O /tmp/chromedriver-linux64.zip
