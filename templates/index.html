@@ -25,7 +25,7 @@
         document.getElementById("sendButton").addEventListener("click", function() {
             var input1Value = document.getElementById("input1").value;
             var input2Value = document.getElementById("input2").value;
-
+            console.log(input1Value, input2Value)
             // Send data to Flask server via AJAX
             fetch('/save_data', {
                 method: 'POST',
