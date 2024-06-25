@@ -10,8 +10,32 @@ from bs4 import BeautifulSoup
 import time
 import sendMail
 import chromedriver_autoinstaller
-
+import os
+import requests
+import zipfile
 app = Flask(__name__)
+
+def download_chromedriver():
+    # Define the URL and the location to download ChromeDriver
+    url = "http://chromedriver.storage.googleapis.com/114.0.5735.90/chromedriver_linux64.zip"
+    local_zip_path = "/tmp/chromedriver.zip"
+    extracted_path = "/tmp/chromedriver"
+
+    # Download ChromeDriver zip
+    response = requests.get(url)
+    with open(local_zip_path, 'wb') as file:
+        file.write(response.content)
+
+    # Extract the zip file
+    with zipfile.ZipFile(local_zip_path, 'r') as zip_ref:
+        zip_ref.extractall(extracted_path)
+
+    # Make sure the chromedriver is executable
+    chromedriver_path = os.path.join(extracted_path, 'chromedriver')
+    os.chmod(chromedriver_path, 0o755)
+
+    return chromedriver_path
+
 
 def bot_setup():
     options = Options()
@@ -30,7 +54,7 @@ def bot_setup():
     # chrome_driver_path = chromedriver_autoinstaller.install()
 
     # Initialize the Chrome driver with the service object
-    service = Service('/usr/local/bin/chromedriver')
+    service = Service(download_chromedriver())
     driver = webdriver.Chrome(service=service, options=options)
     # chromedriver_autoinstaller.install()
     # driver = webdriver.Chrome(options=options) 
