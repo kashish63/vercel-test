@@ -22,16 +22,16 @@ def bot_setup():
     # options.add_argument('--incognito')
     # options.add_argument('--disable-logging')
     # options.add_experimental_option('excludeSwitches', ['enable-logging'])
-    # options.add_argument("--no-sandbox")  # Bypass OS security model, WARNING: NOT RECOMMENDED FOR PRODUCTION
+    options.add_argument("--no-sandbox")  # Bypass OS security model, WARNING: NOT RECOMMENDED FOR PRODUCTION
     # options.add_argument("--disable-dev-shm-usage")  # Overcome limited resource problems
     # options.add_argument("--remote-debugging-port=9222") 
 
     # service = Service(ChromeDriverManager().install())  
-    chrome_driver_path = chromedriver_autoinstaller.install()
+    # chrome_driver_path = chromedriver_autoinstaller.install()
 
     # Initialize the Chrome driver with the service object
-    service = Service(chrome_driver_path)
-    driver = webdriver.Chrome(service=service, options=options)
+    # service = Service(chrome_driver_path)
+    driver = webdriver.Chrome(executable_path='/usr/local/bin/chromedriver', options=options)
     # chromedriver_autoinstaller.install()
     # driver = webdriver.Chrome(options=options) 
     driver.implicitly_wait(10)
