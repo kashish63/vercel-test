@@ -30,8 +30,8 @@ def bot_setup():
     # chrome_driver_path = chromedriver_autoinstaller.install()
 
     # Initialize the Chrome driver with the service object
-    # service = Service(chrome_driver_path)
-    driver = webdriver.Chrome(executable_path='/usr/local/bin/chromedriver', options=options)
+    service = Service('/usr/local/bin/chromedriver')
+    driver = webdriver.Chrome(service=service, options=options)
     # chromedriver_autoinstaller.install()
     # driver = webdriver.Chrome(options=options) 
     driver.implicitly_wait(10)
