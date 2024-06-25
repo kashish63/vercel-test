@@ -1,5 +1,5 @@
 # Use an official Python runtime as a parent image
-FROM python:3.8-slim
+FROM python:3.10-slim
 
 # Install dependencies
 RUN apt-get update && apt-get install -y \
@@ -38,4 +38,4 @@ EXPOSE 80
 ENV NAME World
 
 # Run the command specified in the Procfile
-CMD ["sh", "-c", "exec $(cat Procfile)"]
+CMD ["sh", "-c", "exec $(cat Procfile | cut -d' ' -f2-)"]
