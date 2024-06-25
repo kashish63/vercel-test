@@ -31,11 +31,11 @@ def bot_setup():
     # options.add_argument("--disable-dev-shm-usage")  # Overcome limited resource problems
     # options.add_argument("--remote-debugging-port=9222") 
 
-    service = Service(ChromeDriverManager().install())  
+    # service = Service(ChromeDriverManager())  
     # chrome_driver_path = chromedriver_autoinstaller.install()
 
     # Initialize the Chrome driver with the service object
-    driver = webdriver.Chrome(service=service, options=options)
+    driver = webdriver.Chrome(options=options)
     # chromedriver_autoinstaller.install()
     # driver = webdriver.Chrome(options=options) 
     driver.implicitly_wait(10)

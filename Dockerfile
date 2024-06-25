@@ -3,7 +3,7 @@ FROM debian:stable
 RUN apt-get update -y && apt-get install -y wget curl unzip libgconf-2-4
 ## For project usage: python3/python3-pip/chromium/xvfb
 RUN apt-get update -y && apt-get install -y xvfb python3 python3-pip
-
+    apt-get install libterm-readline-perl
 ## Did below changes while pushing on Toyota
 # RUN apt-get update -y && apt-get install --fix-missing && apt-get install -y python3 python3-pip
 
