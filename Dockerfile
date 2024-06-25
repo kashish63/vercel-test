@@ -18,7 +18,12 @@ RUN version=$(curl -s "https://googlechromelabs.github.io/chrome-for-testing/LAT
 RUN echo "Installing ChromeDriver for version $version"
 RUN wget -N https://storage.googleapis.com/chrome-for-testing-public/125.0.6422.60/linux64/chromedriver-linux64.zip -O /tmp/chromedriver-linux64.zip
 RUN unzip -oj /tmp/chromedriver-linux64.zip -d /usr/local/bin
-RUN apt-get update && apt-get install -y libterm-readline-perl
+# Update the package repository and install libterm-readline-perl
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends apt-utils && \
+    apt-get install -y libterm-readline-perl && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
 RUN mkdir -p /opt/app
 WORKDIR /opt/app
 
