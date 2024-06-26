@@ -1,36 +1,24 @@
-FROM debian:stable
-## For chromedriver installation: curl/wget/libgconf/unzip
-RUN apt-get update -y && apt-get install -y wget curl unzip libgconf-2-4
-## For project usage: python3/python3-pip/chromium/xvfb
-RUN apt-get update -y && apt-get install -y xvfb python3 python3-pip
+# Use the official Python image from the Docker Hub
+FROM python:3.10
 
-
-# RUN apt-get update -y && apt-get install --fix-missing && apt-get install -y python3 python3-pip
-
-RUN curl -sS -o - https://dl-ssl.google.com/linux/linux_signing_key.pub | apt-key add - && \
-    echo "deb http://dl.google.com/linux/chrome/deb/ stable main" >> /etc/apt/sources.list.d/google-chrome.list && \
-    apt-get -yqq update && \
-    apt-get -yqq install google-chrome-stable && \
-    rm -rf /var/lib/apt/lists/*
-
-
-RUN version=$(curl -s "https://googlechromelabs.github.io/chrome-for-testing/LATEST_RELEASE_STABLE")
-RUN echo "Installing ChromeDriver for version $version"
-RUN wget -N https://storage.googleapis.com/chrome-for-testing-public/125.0.6422.60/linux64/chromedriver-linux64.zip -O /tmp/chromedriver-linux64.zip
-RUN unzip -oj /tmp/chromedriver-linux64.zip -d /usr/local/bin
-# Update the package repository and install libterm-readline-perl
-# RUN apt-get update && \
-#     apt-get install -y --no-install-recommends apt-utils && \
-#     apt-get install -y libterm-readline-perl && \
-#     apt-get clean && \
-#     rm -rf /var/lib/apt/lists/*
-RUN mkdir -p /opt/app
-WORKDIR /opt/app
-
+# Set the working directory in the container
 WORKDIR /app
 
-COPY requirements.txt requirements.txt
-RUN pip install -r requirements.txt
+# Copy the entire application code into the container
+COPY . /app
 
-COPY . .
-COPY run.sh .
+# Install the dependencies
+RUN pip install --trusted-host pypi.python.org -r requirements.txt
+
+# Install Google Chrome
+RUN apt-get update && apt-get install -y wget unzip && \
+    wget https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb && \
+    apt install -y ./google-chrome-stable_current_amd64.deb && \
+    rm google-chrome-stable_current_amd64.deb && \
+    apt-get clean 
+
+# Expose the port that the Flask app runs on
+EXPOSE 5000
+
+# Command to run the Gunicorn server
+CMD ["gunicorn", "--bind", "0.0.0.0:5000", "app:app"]

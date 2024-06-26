@@ -1,11 +1,6 @@
-
 flask 
-selenium
-# ChromeDriverManager
-webdriver_manager
-xvfbwrapper
-# fcntl
 gunicorn
-beautifulsoup4
-chromedriver-autoinstaller
-
+selenium==4.9.1
+beautifulsoup4==4.12.2
+webdriver_manager==4.0.0
+lxml
