@@ -9,10 +9,11 @@ from selenium.webdriver.support import expected_conditions as EC
 from bs4 import BeautifulSoup
 import time
 import sendMail
-
+import srilankanskychain 
+import logging
 app = Flask(__name__)
 
-
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
 def bot_setup():
     options = Options()
@@ -28,14 +29,10 @@ def bot_setup():
     # options.add_argument("--disable-dev-shm-usage")  # Overcome limited resource problems
     # options.add_argument("--remote-debugging-port=9222") 
 
-    # service = Service(ChromeDriverManager())  
-    # chrome_driver_path = chromedriver_autoinstaller.install()
-
-    # Initialize the Chrome driver with the service object
+   
     driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=options)
-    # chromedriver_autoinstaller.install()
-    # driver = webdriver.Chrome(options=options) 
     driver.implicitly_wait(10)
+    logging.info("Driver Initilize")
     return driver
 
 def scrap_data(driver, url, input1, input2 ):
@@ -53,8 +50,9 @@ def scrap_data(driver, url, input1, input2 ):
         code_input_field.send_keys(input1)
         tracking_input_field.send_keys(input2)
         submit_button.click()
-        data={}
+        data=[]
         print("done")  # This will now print after actions are successful
+        logging.info("Clicked on track button")
         try: 
             # wait.until(EC.presence_of_element_located(By.ID, 'contentarea_tracking'))
             element = driver.find_element(By.ID,"contentarea_tracking")
@@ -66,34 +64,59 @@ def scrap_data(driver, url, input1, input2 ):
             print("two tables", len(tableTitle))
             if len(tableTitle)>0:
                 tablehead = driver.find_elements(By.XPATH, "//*[@id='gvBkAcInfo']/tbody/tr[1]/th")
-                for i in range(0, len(tablehead)):
-                    print(tablehead[i].text)
-                    data[tablehead[i].text]=tablehead[i].text
-
-                row = soup.find_all("tr", {"class": "newstyle-tr"})
-                # col = soup.find_all("td", {"xpath":"//*[@id='gvBkAcInfo']/tbody/tr[2]/td"})
+                # for i in range(0, len(tablehead)):
+                #     print(tablehead[i].text)
+                #     data[tablehead[i].text]=tablehead[i].text
+                
+                # table one
+                row = driver.find_elements(By.XPATH, "//*[@id='gvBkAcInfo']/tbody/tr")
                 col = driver.find_elements(By.XPATH, "//*[@id='gvBkAcInfo']/tbody/tr[2]/td")
 
                 print("col= ",len(col), " row=", len(row))
-                # for i in range(1, len(elements)+1):
+                for i in range(2, len(row)+1):
                     # time.sleep(3)
-                    # wait.until(EC.presence_of_element_located(By.XPATH, f'//*[@id="cargotracker"]/div[2]/app-cargo-track-history/div/div/div[2]/div[2]/div/ul/li[{i}]/p[1]'))
+                    values={}
+                    for j in range(1, len(col)+1):
+                        # wait.until(EC.presence_of_element_located(By.XPATH, f'//*[@id="GridViewAwbTracking"]/tbody/tr[2]/td'))
+                        key = driver.find_element(By.XPATH, f'//*[@id="gvBkAcInfo"]/tbody/tr[1]/th[{j}]').text
+                        value = driver.find_element(By.XPATH, f'//*[@id="gvBkAcInfo"]/tbody/tr[{i}]/td[{j}]').text
+                        # print (key," :", value)
+                        values[key]=value
+                    data.append({'status': f"{values['Status']} at {values['Station']}, Flight#: {values['Flight#']}, pcs: {values['Pcs']}, Weight: {values['Weight']}, Dest: {values['Dest']}",
+                                 'Event Date-Time': values['Event Date-Time'],
+                                 'location': values['Station']})
 
-                    # data1 = driver.find_element(By.XPATH, f'//*[@id="cargotracker"]/div[2]/app-cargo-track-history/div/div/div[2]/div[2]/div/ul/li[{i}]/p[1]').text
-                    # data2 = driver.find_element(By.XPATH, f'//*[@id="cargotracker"]/div[2]/app-cargo-track-history/div/div/div[2]/div[2]/div/ul/li[{i}]/p[2]').text
+                # table two    
+                row = driver.find_elements(By.XPATH, "//*[@id='GridViewAwbTracking']/tbody/tr")
+                col = driver.find_elements(By.XPATH, "//*[@id='GridViewAwbTracking']/tbody/tr[2]/td")
 
-                #     print (data1," :", data2)
-                return data
+                print("col= ",len(col), " row=", len(row))
+                for i in range(2, len(row)+1):
+                    # time.sleep(3)
+                    values={}
+                    for j in range(1, len(col)+1):
+                        # wait.until(EC.presence_of_element_located(By.XPATH, f'//*[@id="GridViewAwbTracking"]/tbody/tr[2]/td'))
+                        key = driver.find_element(By.XPATH, f'//*[@id="GridViewAwbTracking"]/tbody/tr[1]/th[{j}]').text
+                        value = driver.find_element(By.XPATH, f'//*[@id="GridViewAwbTracking"]/tbody/tr[{i}]/td[{j}]').text
+                        # print (key," :", value)
+                        values[key]=value
+                    data.append({'status': f"{values['Milestone']} at {values['Station']}, Flight#: {values['Flight#']}{values['Flight Date']}, pcs: {values['Pcs']}, Weight: {values['Weight']}, Dest: {values['Dest']}, ULD: {values['ULD']}",
+                                 'Event Date-Time': values['Event Date-Time'],
+                                 'location': values['Station']})
+                print(data)
+                # return data
+                return {"success": True, "message": "Successfully Scrap data from web","result":data, "length":len(data)} 
             else:
                 print("No data for this number")
-                return {"massege": "No data for this number"}
+                return {"success": False, "message": "No data for this number","result":[], "length":0} 
+                # return {"massege": "No data for this number"}
         except TimeoutError as e:
             driver.quit()
-            return {"Error":e} 
+            return {"success": False, "message": "An Error occured","result":[{"Error":str(e)}]} 
     except Exception as e:
         print(f"Exception occurred: {str(e)}")
         driver.quit()
-        return {{'error': 'Failed to automate web form.', 'exception': str(e)}} 
+        return {"success": False, "message": "Failed to automate web form.","result":[{"Error": str(e)}]}  
 
 
 @app.route('/')
@@ -101,23 +124,28 @@ def index():
     return render_template('index.html')
 
 
-@app.route('/save_data', methods=['POST'])
+@app.route('/scrap_data', methods=['POST'])
 def save_data():
     data = request.json
-    input1 = data['input1']
-    input2 = data['input2']
-
-    url="https://6ecargo.goindigo.in/FrmAWBTracking.aspx"
-    driver = bot_setup()
-    data= scrap_data(driver, url, input1, input2)
-    try: 
-        sendMail.send_mail(data)
-    except Exception as e:
-        print("Error in sending mail ", e)
-    current_url = driver.current_url
+    input1 = data['prefix']
+    input2 = data['number']
+    if len(input1)!=3 or len(input2)!=8:
+        return jsonify({"success": False, "message": "Please enter valid prefix or number","result":[]})
+    if input1=="312":
+        url="https://6ecargo.goindigo.in/FrmAWBTracking.aspx"
+        driver = bot_setup()
+        data= scrap_data(driver, url, input1, input2)
+    elif input1 =="603":
+        url="http://www.srilankanskychain.aero/skychain/app?service=page/nwp:Trackshipmt"
+        driver = bot_setup()
+        data= srilankanskychain.scrap_data(driver, url, input1, input2)
+    # try: 
+    #     sendMail.send_mail(data)
+    # except Exception as e:
+    #     print("Error in sending mail ", e)
     driver.quit()
     print("Redirecting to Google.")
-    return jsonify({'redirect_url': current_url })
+    return jsonify(data)
 
 if __name__ == '__main__':
     app.run(debug=True)

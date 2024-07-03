@@ -18,6 +18,8 @@
         <input type="text" id="input2" name="input2"><br><br>
         
         <button type="button" id="sendButton">Send</button>
+
+        <div id="returnData"></div>
     </form>
 
     <!-- Script to handle button click and redirect -->
@@ -27,16 +29,19 @@
             var input2Value = document.getElementById("input2").value;
             console.log(input1Value, input2Value)
             // Send data to Flask server via AJAX
-            fetch('/save_data', {
+            fetch('/scrap_data', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({input1: input1Value, input2: input2Value})
+                body: JSON.stringify({prefix: input1Value, number: input2Value})
             }).then(response => response.json())
             .then(data => {
                 if (data.redirect_url) {
                     window.location.href = data.redirect_url;  // Perform the redirect
+                }else{
+                    document.getElementById("returnData").innerHTML = data;
+                    console.log(data)
                 }
             })
             .catch(error => console.error('Error:', error));
