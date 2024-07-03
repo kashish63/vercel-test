@@ -83,7 +83,7 @@ def scrap_data(driver, url, input1, input2 ):
                         # print (key," :", value)
                         values[key]=value
                     data.append({'status': f"{values['Status']} at {values['Station']}, Flight#: {values['Flight#']}, pcs: {values['Pcs']}, Weight: {values['Weight']}, Dest: {values['Dest']}",
-                                 'Event Date-Time': values['Event Date-Time'],
+                                 'date': values['Event Date-Time'],
                                  'location': values['Station']})
 
                 # table two    
@@ -101,7 +101,7 @@ def scrap_data(driver, url, input1, input2 ):
                         # print (key," :", value)
                         values[key]=value
                     data.append({'status': f"{values['Milestone']} at {values['Station']}, Flight#: {values['Flight#']}{values['Flight Date']}, pcs: {values['Pcs']}, Weight: {values['Weight']}, Dest: {values['Dest']}, ULD: {values['ULD']}",
-                                 'Event Date-Time': values['Event Date-Time'],
+                                 'date': values['Event Date-Time'],
                                  'location': values['Station']})
                 print(data)
                 # return data

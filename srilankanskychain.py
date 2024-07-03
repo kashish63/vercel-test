@@ -67,6 +67,7 @@ def scrap_data(driver, url, input1, input2 ):
             lines = details.strip().split('\n')
             for line in lines:
                 values={}
+                values["date"]=False
                 values["status"]=line
                 values["location"]=station.text
                 data.append(values)
