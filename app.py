@@ -9,7 +9,7 @@ from selenium.webdriver.support import expected_conditions as EC
 from bs4 import BeautifulSoup
 import time
 import sendMail
-import srilankanskychain 
+import srilankanskychain, unitconversio 
 import logging
 app = Flask(__name__)
 
@@ -123,10 +123,20 @@ def scrap_data(driver, url, input1, input2 ):
 def index():
     return render_template('index.html')
 
+@app.route('/currency', methods=['GET'])
+def currency():
+    url = "https://instantforex.icicibank.com/instantforex/forms/MicroCardRateView.aspx"
+    driver = bot_setup()
+    data = unitconversio.get_currency(url, driver)
+    driver.quit()
+    return jsonify(data)
 
 @app.route('/scrap_data', methods=['POST'])
 def save_data():
+    
     data = request.json
+    if 'prefix' not in data or not data['prefix'] or 'number' not in data or not data['number']:
+        return jsonify({"success": False, "message": "Please enter prefix and number","result":[]})
     input1 = data['prefix']
     input2 = data['number']
     if len(input1)!=3 or len(input2)!=8:
@@ -146,6 +156,8 @@ def save_data():
     driver.quit()
     print("Redirecting to Google.")
     return jsonify(data)
+    
+
 
 if __name__ == '__main__':
     app.run(debug=True)
